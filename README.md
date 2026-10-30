@@ -24,7 +24,8 @@ Aplikasi web fullstack untuk proyek pilot **SmartWarehouse** milik klien fiktif 
 8. [Aturan Validasi](#aturan-validasi)
 9. [Contoh Request](#contoh-request)
 10. [Seeder](#seeder)
-11. [Keputusan Teknis](#keputusan-teknis)
+11. [Pengujian Otomatis](#pengujian)
+12. [Koleksi Postman](#postman)
 
 ---
 
@@ -70,21 +71,43 @@ Use case yang dicakup: **UC-FS-01 — Mengelola Perangkat Sensor dan Melihat Pem
 
 > Sesuaikan bagian ini dengan struktur folder aktual di repository.
 
-```
-TT26_FS_MuhammadDzakyHamid/
+```text
+TT26-05-FS-SmartWarehouse/
+├── README.md                                # Dokumentasi proyek & panduan pengujian
+├── docs/
+│   ├── prd.md                               # Dokumen spesifikasi kebutuhan PRD
+│   └── Tasteskill.md                        # Panduan standar UI/UX TasteSkill
+├── postman/
+│   └── SmartWarehouse.postman_collection.json # Koleksi Postman lengkap 6 endpoint + skenario error
 ├── app/
 │   ├── Http/
-│   │   ├── Controllers/       # DeviceController, ReadingController
-│   │   └── Requests/          # Form Request (validasi)
-│   └── Models/                # Device, Reading
+│   │   ├── Controllers/
+│   │   │   ├── DeviceController.php         # CRUD Perangkat (200, 201, 204, 400, 404, 409)
+│   │   │   ├── ReadingController.php        # Telemetri sensor & 10 pembacaan terakhir
+│   │   │   └── StatsController.php          # Ringkasan KPI dashboard & seed reset
+│   │   └── Requests/
+│   │       ├── StoreDeviceRequest.php       # Validasi format kode (regex) -> 400
+│   │       ├── UpdateDeviceRequest.php      # Validasi ubah -> 400
+│   │       └── StoreReadingRequest.php      # Validasi suhu & kelembapan -> 400
+│   └── Models/
+│       ├── Device.php                       # Model Device, relasi hasMany ke Reading
+│       └── Reading.php                      # Model Reading, relasi belongsTo ke Device
 ├── database/
-│   ├── migrations/            # Skema devices & readings
-│   └── seeders/               # Data awal
-├── public/                    # Frontend (index.html, css, js)
+│   ├── migrations/
+│   │   ├── 2024_01_01_000001_create_devices_table.php  # Migrasi devices
+│   │   └── 2024_01_01_000002_create_readings_table.php # Migrasi readings (indeks komposit & cascade)
+│   └── seeders/
+│       ├── DeviceSeeder.php                 # Seeder 3 perangkat & 30 pembacaan (interval 5 menit)
+│       └── DatabaseSeeder.php
+├── public/                                  # Halaman Admin Web & Aset Frontend
+│   ├── index.html                           # Antarmuka Admin SmartWarehouse
+│   └── assets/                              # Script & Style UI
 ├── routes/
-│   └── api.php                # Definisi endpoint /api/*
-├── .env.example
-└── README.md
+│   ├── api.php                              # Rute 6 REST API utama + endpoint helper
+│   └── web.php                              # Menyajikan Antarmuka Admin pada route '/'
+├── tests/Feature/
+│   └── SmartWarehouseApiTest.php            # Otomasi pengujian seluruh AC-01 s/d AC-10 (PHPUnit)
+└── .env.example
 ```
 
 ---
@@ -99,112 +122,44 @@ TT26_FS_MuhammadDzakyHamid/
 
 ### Langkah
 
+Cara Menjalankan Aplikasi (Hanya Satu Perintah)
+
+### 1. Instalasi Dependensi & Setup Environment:
 ```bash
-# 1. Clone repository
-git clone git@github.com:ovaltinegif/TT26_FS_MuhammadDzakyHamid.git
-cd TT26_FS_MuhammadDzakyHamid
-
-# 2. Pasang dependensi
 composer install
-
-# 3. Salin konfigurasi environment
 cp .env.example .env
 php artisan key:generate
 ```
 
-### Konfigurasi database
-
-Buat database kosong, mis. `smartwarehouse`:
-
-```sql
-CREATE DATABASE smartwarehouse CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-```
-
-Lalu sesuaikan `.env`:
-
-```env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=smartwarehouse
-DB_USERNAME=root
-DB_PASSWORD=
-```
-
-### Migrasi, seeder, dan jalankan server
-
+### 2. Migrasi Database & Seeding Data:
 ```bash
-php artisan migrate --seed
-php artisan serve
-```
-
-Aplikasi dapat dibuka di **http://127.0.0.1:8000**. Base URL API: `http://127.0.0.1:8000/api`.
-
-Untuk mengulang dari awal:
-
-```bash
+# Mengisi 3 perangkat awal dan 30 telemetri sensor sesuai batas suhu Gudang A & B
 php artisan migrate:fresh --seed
 ```
 
----
+### 3. Jalankan Server:
+```bash
+php artisan serve
+```
+
+Aplikasi sekarang siap diakses:
+- 🌐 **Antarmuka Web Admin:** buka browser di **`http://127.0.0.1:8000`**
+- 🔌 **REST API:** dapat diakses langsung pada **`http://127.0.0.1:8000/api`**
 
 ## Desain Database
 
-Relasi **one-to-many**: satu `devices` memiliki banyak `readings`.
-
-```
-devices 1 ───────< N readings
-```
-
-### Tabel `devices`
-
-| Kolom | Tipe | Keterangan |
-| --- | --- | --- |
-| `id` | BIGINT UNSIGNED, PK, AI | Primary key |
-| `kode` | VARCHAR(10), UNIQUE, NOT NULL | Format `SNS-[A/B][2 digit]` |
-| `nama` | VARCHAR(50), NOT NULL | Nama perangkat |
-| `gudang` | ENUM('A','B'), NOT NULL | Lokasi gudang |
-| `is_active` | BOOLEAN, DEFAULT TRUE | Status aktif |
-| `created_at`, `updated_at` | TIMESTAMP | Jejak waktu |
-
-### Tabel `readings`
-
-| Kolom | Tipe | Keterangan |
-| --- | --- | --- |
-| `id` | BIGINT UNSIGNED, PK, AI | Primary key |
-| `device_id` | BIGINT UNSIGNED, FK → `devices.id`, ON DELETE CASCADE | Perangkat pengirim |
-| `suhu` | DECIMAL(5,2), NOT NULL | Suhu dalam °C |
-| `kelembapan` | DECIMAL(5,2), NOT NULL | Kelembapan dalam % (0–100) |
-| `created_at`, `updated_at` | TIMESTAMP | `created_at` menjadi waktu pembacaan |
-
-Indeks komposit `(device_id, created_at)` mempercepat query "N pembacaan terbaru per perangkat".
-
-### Skrip SQL setara
-
-```sql
-CREATE TABLE devices (
-  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  kode VARCHAR(10) NOT NULL UNIQUE,
-  nama VARCHAR(50) NOT NULL,
-  gudang ENUM('A','B') NOT NULL,
-  is_active BOOLEAN NOT NULL DEFAULT TRUE,
-  created_at TIMESTAMP NULL,
-  updated_at TIMESTAMP NULL
-);
-
-CREATE TABLE readings (
-  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  device_id BIGINT UNSIGNED NOT NULL,
-  suhu DECIMAL(5,2) NOT NULL,
-  kelembapan DECIMAL(5,2) NOT NULL,
-  created_at TIMESTAMP NULL,
-  updated_at TIMESTAMP NULL,
-  CONSTRAINT fk_readings_device
-    FOREIGN KEY (device_id) REFERENCES devices(id) ON DELETE CASCADE,
-  INDEX idx_readings_device_time (device_id, created_at)
-);
-```
-
+Relasi **one-to-many** (1 : N) antara tabel `devices` dan `readings`:
+- `devices.id` (PK, BIGINT UNSIGNED)
+- `devices.kode` (VARCHAR(10), UNIQUE) — format regex `^SNS-[AB][0-9]{2}$`
+- `devices.nama` (VARCHAR(50))
+- `devices.gudang` (ENUM 'A', 'B')
+- `devices.is_active` (BOOLEAN DEFAULT TRUE)
+- `readings.id` (PK, BIGINT UNSIGNED)
+- `readings.device_id` (FK → `devices.id` dengan **`ON DELETE CASCADE`**)
+- `readings.suhu` (DECIMAL(5,2))
+- `readings.kelembapan` (DECIMAL(5,2))
+- **Indeks Komposit:** `(device_id, created_at)` pada tabel `readings` guna mengoptimalkan query pembacaan berkala sensor secara instan.
+  
 ---
 
 ## Dokumentasi API
@@ -344,13 +299,30 @@ Nilai suhu seeder mengikuti rentang aman masing-masing gudang.
 
 ---
 
-## Keputusan Teknis
+## Pengujian Otomatis (QA Checklist AC-01 s/d AC-10)
 
-- **Satu sumber validasi di backend.** Frontend hanya menampilkan pesan error dari API, sehingga aturan tidak ganda.
-- **Kode status HTTP sesuai semantik.** `400` data tidak valid, `404` tidak ditemukan, `409` duplikat, `204` untuk hapus.
-- **Indeks `(device_id, created_at)`** agar pengambilan pembacaan terbaru tetap cepat saat data bertambah.
-- **`ON DELETE CASCADE`** supaya pembacaan ikut terhapus bersama perangkatnya dan tidak ada data yatim.
-- **Konfirmasi hapus di frontend** sebelum memanggil `DELETE`, sesuai alur alternatif A3.
+Untuk menjalankan seluruh rangkaian automated feature test:
+```bash
+php artisan test --filter=SmartWarehouseApiTest
+```
+
+**Status Pengujian (LULUS 100%):**
+- `GET /api/devices` setelah seeding: **LULUS (200 OK, 3 devices)**
+- `POST /api/devices` data valid: **LULUS (201 Created)**
+- `POST /api/devices` format salah: **LULUS (400 Bad Request)**
+- `POST /api/devices` kode duplikat: **LULUS (409 Conflict)**
+- `PUT /api/devices/:id` update & bentrok kode: **LULUS (200 / 404 / 409)**
+- `DELETE /api/devices/:id` & cascade delete: **LULUS (204 No Content / 404)**
+- `POST /api/readings` & validasi rentang 0-100: **LULUS (201 / 400 / 404)**
+- `GET /api/devices/:id/readings?limit=10` urutan DESC: **LULUS (200 OK)**
+
+---
+
+## Koleksi Postman
+
+Berkas Postman siap diimpor dari:
+`postman/SmartWarehouse.postman_collection.json`
+Mencakup seluruh 6 endpoint utama, endpoint statistik, endpoint reset seeder, serta contoh respons status `200`, `201`, `204`, `400`, `404`, dan `409`.
 
 ---
 
