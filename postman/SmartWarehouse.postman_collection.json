@@ -1,0 +1,428 @@
+{
+  "info": {
+    "_postman_id": "7b8e1a3c-4d5e-6f7a-8b9c-0d1e2f3a4b5c",
+    "name": "SmartWarehouse - REST API Collection (TT26-05-FS)",
+    "description": "Koleksi Postman REST API SmartWarehouse - Pengelolaan Perangkat Sensor Suhu & Kelembapan (ESP32 + DHT22) untuk PT Dingin Segar Logistik.\nDisusun oleh Muhammad Dzaky Hamid.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Devices",
+      "item": [
+        {
+          "name": "1. GET /api/devices (List Devices - 200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/devices",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "devices"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "2. POST /api/devices (Create Device - 201 Created)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kode\": \"SNS-A03\",\n  \"nama\": \"Sensor Freezer Cadangan 2\",\n  \"gudang\": \"A\",\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/devices",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "devices"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "3. POST /api/devices (Error 400 - Format Tidak Valid)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kode\": \"ABC\",\n  \"nama\": \"\",\n  \"gudang\": \"C\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/devices",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "devices"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "4. POST /api/devices (Error 409 - Kode Duplikat)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kode\": \"SNS-A01\",\n  \"nama\": \"Duplikat Sensor\",\n  \"gudang\": \"A\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/devices",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "devices"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "5. PUT /api/devices/:id (Update Device - 200 OK)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kode\": \"SNS-A01\",\n  \"nama\": \"Sensor Freezer Utama (Updated)\",\n  \"gudang\": \"A\",\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/devices/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "devices", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "6. PUT /api/devices/:id (Error 404 - Device Not Found)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kode\": \"SNS-A99\",\n  \"nama\": \"Sensor Fiktif\",\n  \"gudang\": \"A\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/devices/999",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "devices", "999"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "7. PUT /api/devices/:id (Error 409 - Kode Bentrok Perangkat Lain)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kode\": \"SNS-A02\",\n  \"nama\": \"Bentrok dengan device 2\",\n  \"gudang\": \"A\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/devices/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "devices", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "8. DELETE /api/devices/:id (Delete Device - 204 No Content)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/devices/4",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "devices", "4"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "9. DELETE /api/devices/:id (Error 404 - Device Not Found)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/devices/999",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "devices", "999"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Readings",
+      "item": [
+        {
+          "name": "10. POST /api/readings (Simpan Pembacaan - 201 Created)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": 1,\n  \"suhu\": -18.4,\n  \"kelembapan\": 62.0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/readings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "readings"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "11. POST /api/readings (Error 400 - Validasi Kelembapan/Suhu)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": 1,\n  \"suhu\": \"bukan-angka\",\n  \"kelembapan\": 150\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/readings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "readings"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "12. POST /api/readings (Error 404 - Device ID Not Found)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": 999,\n  \"suhu\": 5.2,\n  \"kelembapan\": 68.0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/readings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "readings"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "13. GET /api/devices/:id/readings (Latest Readings - 200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/devices/1/readings?limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "devices", "1", "readings"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "14. GET /api/devices/:id/readings (Error 400 - Limit Tidak Valid)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/devices/1/readings?limit=xyz",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "devices", "1", "readings"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "xyz"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "15. GET /api/devices/:id/readings (Error 404 - Device Not Found)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/devices/999/readings?limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "devices", "999", "readings"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Stats & Seeder",
+      "item": [
+        {
+          "name": "16. GET /api/stats (Aggregated Statistics - 200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stats"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "17. POST /api/seed/reset (Reset Seeder Database - 200 OK)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/seed/reset",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "seed", "reset"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
