@@ -4,8 +4,7 @@ Tes Teknis Magang TaggIoT 2026 · Posisi **Junior Fullstack Engineer** · Kode T
 
 Aplikasi web fullstack untuk proyek pilot **SmartWarehouse** milik klien fiktif PT Dingin Segar Logistik (cold storage, Semarang). Admin IT dapat menambah, mengubah, dan menghapus perangkat sensor suhu & kelembapan (ESP32 + DHT22), serta melihat 10 pembacaan terakhir tiap perangkat.
 
-| | |
-| --- |
+| --- | --- |
 | **Peserta** | Muhammad Dzaky Hamid |
 | **GitHub** | [@ovaltinegif](https://github.com/ovaltinegif) |
 | **Repository** | `TT26_FS_MuhammadDzakyHamid` |
