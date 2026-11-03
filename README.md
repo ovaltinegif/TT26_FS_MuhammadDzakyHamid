@@ -325,6 +325,16 @@ Mencakup seluruh 6 endpoint utama, endpoint statistik, endpoint reset seeder, se
 
 ---
 
+### Screenshot Aplikasi
+
+**Halaman Utama**
+![Tampilan Halaman Utama](./docs/halaman_utama.png)
+
+**Detail Perangkat**
+![Tampilan 10 Pembacaan Terakhir](./docs/detail_perangkat.png)
+
+---
+
 ## Penulis
 
 **Muhammad Dzaky Hamid** — Junior Fullstack Engineer (Magang TaggIoT 2026)
