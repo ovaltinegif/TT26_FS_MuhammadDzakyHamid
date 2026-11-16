@@ -98,14 +98,19 @@ TT26-05-FS-SmartWarehouse/
 │   └── seeders/
 │       ├── DeviceSeeder.php                 # Seeder 3 perangkat & 30 pembacaan (interval 5 menit)
 │       └── DatabaseSeeder.php
-├── public/                                  # Halaman Admin Web & Aset Frontend
+├── public/                                  # Halaman Admin Web & Aset Frontend (HTML + CSS + JS Murni)
 │   ├── index.html                           # Antarmuka Admin SmartWarehouse
-│   └── assets/                              # Script & Style UI
+│   ├── style.css                            # Apple-style UI & Dark Mode CSS
+│   └── app.js                               # Logic Fetch API, CRUD, Grafik SVG, & Matriks Uji AC
 ├── routes/
 │   ├── api.php                              # Rute 6 REST API utama + endpoint helper
 │   └── web.php                              # Menyajikan Antarmuka Admin pada route '/'
 ├── tests/Feature/
 │   └── SmartWarehouseApiTest.php            # Otomasi pengujian seluruh AC-01 s/d AC-10 (PHPUnit)
+├── docker/
+│   └── entrypoint.sh                        # Auto-migrate & auto-seed saat container pertama kali menyala
+├── Dockerfile                               # Image PHP 8.4 CLI + Composer + ekstensi pdo_mysql
+├── docker-compose.yml                       # Orkestrasi 2 container: app (Laravel) + db (MySQL 8.0)
 └── .env.example
 ```
 
@@ -144,6 +149,26 @@ php artisan serve
 Aplikasi sekarang siap diakses:
 - 🌐 **Antarmuka Web Admin:** buka browser di **`http://127.0.0.1:8000`**
 - 🔌 **REST API:** dapat diakses langsung pada **`http://127.0.0.1:8000/api`**
+
+### Alternatif: Menjalankan dengan Docker Compose (Opsi Nilai Tambah FO-01)
+
+Jika menggunakan Docker, aplikasi Laravel (`PHP 8.4`) dan database (`MySQL 8.0`) dapat dijalankan langsung dalam satu perintah (otomatis menjalankan migrasi dan seeder pada saat pertama kali menyala):
+
+```bash
+docker compose up --build -d
+```
+
+Perintah berguna lainnya:
+```bash
+# Melihat log container aplikasi
+docker compose logs -f app
+
+# Mereset ulang database & seeder di dalam container Docker
+docker compose exec app php artisan migrate:fresh --seed
+
+# Menghentikan container (data MySQL tetap tersimpan di volume mysql_data)
+docker compose down
+```
 
 ## Desain Database
 
